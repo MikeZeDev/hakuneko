@@ -3,7 +3,7 @@ import Manga from '../engine/Manga.mjs';
 export default class MangaTales extends Connector {
     constructor() {
         super();
-        super.id = 'mnagatales';
+        super.id = 'mangatales';
         super.label = 'MangaTales';
         this.tags = ['manga', 'webtoon', 'arabic'];
         this.url = 'https://mangatales.com';
