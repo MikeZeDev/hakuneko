@@ -5,7 +5,7 @@ export default class MundoWebtoon extends Connector {
         super();
         super.id = 'mundowebtoon';
         super.label = 'MundoWebtoon';
-        this.tags = [ 'webtoon', 'russian', 'manga' ];
+        this.tags = [ 'webtoon', 'portuguese', 'manga' ];
         this.url = 'https://mundowebtoon.com';
     }
     async _getMangaFromURI(uri) {
