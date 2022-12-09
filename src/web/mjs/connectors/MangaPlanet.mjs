@@ -1,7 +1,7 @@
 import SpeedBinb from './templates/SpeedBinb.mjs';
 import Manga from '../engine/Manga.mjs';
 
-export default class Futekiya extends SpeedBinb {
+export default class MangaPlanet extends SpeedBinb {
 
     constructor() {
         super();
