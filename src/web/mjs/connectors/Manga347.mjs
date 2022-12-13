@@ -10,8 +10,8 @@ export default class Manga347 extends Connector {
     }
     async _getMangaFromURI(uri) {
         const request = new Request(uri, this.requestOptions);
-        const data = await this.fetchDOM(request, 'meta[property="og:title"]');
-        return new Manga(this, uri.pathname, data[0].content.trim());
+        const data = await this.fetchDOM(request, 'div.anisc-detail h1.manga-name');
+        return new Manga(this, uri.pathname, data[0].textContent.trim());
     }
     async _getMangas() {
         let mangaList = [];
