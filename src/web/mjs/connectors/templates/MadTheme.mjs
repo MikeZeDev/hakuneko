@@ -40,7 +40,9 @@ export default class MadTheme extends Connector {
         });
     }
     async _getChapters(manga) {
-        let uri = new URL('/api/manga'+manga.id+'/chapters?source=detail', this.url);
+    	let mangaid = manga.id.split('/');
+    	mangaid = '/'+mangaid[mangaid.length - 1];//make sure to take last part of url for the api
+        let uri = new URL('/api/manga'+mangaid+'/chapters?source=detail', this.url);
         let request = new Request(uri, this.requestOptions);
         let data = await this.fetchDOM(request, 'a');
         return data.map(element => {
