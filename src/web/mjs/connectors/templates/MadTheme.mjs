@@ -34,7 +34,7 @@ export default class MadTheme extends Connector {
         const data = await this.fetchDOM(request, this.queryMangas);
         return data.map(element => {
             return {
-                id: this.getRootRelativeOrAbsoluteLink(element, this.url),
+                id: element.pathname,
                 title: element.title.trim()
             };
         });
@@ -53,8 +53,22 @@ export default class MadTheme extends Connector {
         });
     }
     async _getPages(chapter) {
-        const request = new Request(new URL(chapter.id, this.url), this.requestOptions);
-        const data = await this.fetchDOM(request, this.queryPages);
-        return data.map(ele => ele.children[0].dataset.src);
+        let scriptPages = `
+        new Promise(resolve => {
+            resolve(final_images);
+        });
+        `;
+        let request = new Request(this.url + chapter.id, this.requestOptions);
+        let data = await Engine.Request.fetchUI(request, scriptPages);
+        return data.map(element => this.createConnectorURI(this.getAbsolutePath(element, request.url)));
+    }
+    async _handleConnectorURI(payload) {
+        let request = new Request(payload, this.requestOptions);
+        request.headers.set('x-referer', this.url);
+        let response = await fetch(request);
+        let data = await response.blob();
+        data = await this._blobToBuffer(data);
+        this._applyRealMime(data);
+        return data;
     }
 }
