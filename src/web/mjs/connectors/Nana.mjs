@@ -10,10 +10,8 @@ export default class Nana extends Connector {
     }
     async _getMangaFromURI(uri) {
         const request = new Request(uri, this.requestOptions);
-        let id = uri.href.split('/');
-        id = id[id.length-1];
-        const data = await this.fetchDOM(request, 'div.titulo h1');
-        return new Manga(this, id, data[0].textContent.trim());
+        const data = await this.fetchDOM(request, 'h1[style="display:none"');
+        return new Manga(this, uri.pathname, data[0].textContent.trim());
     }
 
     async _getMangas() {
