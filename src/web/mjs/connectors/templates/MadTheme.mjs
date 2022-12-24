@@ -7,7 +7,7 @@ export default class MadTheme extends Connector {
         super.label = undefined;    
         this.tags = [];
         this.url = undefined;
-        this.path = '/az-list?page=';
+        this.path = '/az-list';
         this.queryMangaTitleFromURI = 'div.name.box h1';
         this.queryMangas = 'div.thumb a';
         this.queryPages = 'div.chapter-image';
@@ -29,7 +29,7 @@ export default class MadTheme extends Connector {
         return mangaList;
     }
     async _getMangasFromPage(page) {
-        const uri = new URL(this.path + page, this.url);
+        const uri = new URL(this.path + '?page=' + page, this.url);
         const request = new Request(uri, this.requestOptions);
         const data = await this.fetchDOM(request, this.queryMangas);
         return data.map(element => {
