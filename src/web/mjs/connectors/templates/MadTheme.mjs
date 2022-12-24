@@ -9,7 +9,7 @@ export default class MadTheme extends Connector {
         this.url = undefined;
         this.path = '/az-list';
         this.queryMangaTitleFromURI = 'div.name.box h1';
-        this.queryMangas = 'div.thumb a';
+        this.queryMangas = 'div.book-detailed-item div.thumb a';
         this.queryPages = 'div.chapter-image';
         this.queryChapterTitle = 'strong.chapter-title';
     }
