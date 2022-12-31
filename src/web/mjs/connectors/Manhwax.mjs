@@ -9,7 +9,7 @@ export default class Manhwax extends WordPressMangastream {
         this.tags = [ 'manga', 'english', 'webtoon', 'hentai'];
         this.path = '/az-list/page/';
         this.url = 'https://manhwax.com';
-        this.queryMangas = 'div.listo div.bs div.bsx a'
+        this.queryMangas = 'div.listo div.bs div.bsx a';
     }
     async _getMangas() {
         let mangaList = [];
@@ -29,5 +29,5 @@ export default class Manhwax extends WordPressMangastream {
                 title: element.querySelector('div.bigor div.tt').textContent.trim()
             };
         });
-    }    
+    }
 }
