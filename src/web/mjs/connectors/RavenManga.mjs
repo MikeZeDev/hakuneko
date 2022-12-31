@@ -32,7 +32,7 @@ export default class RavenManga extends Connector {
         return data.map(element => {
             return {
                 id: this.getRootRelativeOrAbsoluteLink(element, this.url),
-                title: (element.text.indexOf('–') != -1) ? element.text.split('–')[1].trim() : element.text.trim()
+                title: element.text.indexOf('–') != -1 ? element.text.split('–')[1].trim() : element.text.trim()
             };
         });
     }

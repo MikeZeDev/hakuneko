@@ -16,7 +16,7 @@ export default class AnimeFLV extends Connector {
     async _getMangaFromURI(uri) {
         const request = new Request(uri, this.requestOptions);
         const data = await this.fetchDOM(request, 'div.Container h1.title');
-        return new Manga(this, uri.pathname , data[0].textContent.trim());
+        return new Manga(this, uri.pathname, data[0].textContent.trim());
     }
     async _getMangas() {
         let mangaList = [];
@@ -58,9 +58,7 @@ export default class AnimeFLV extends Connector {
         }
         return chapterlist;
     }
-    async listVideos(episode, info)
-    {
-        let chapterlist = [];
+    async listVideos(episode, info) {
         const url = new URL('/ver/'+info[2] +'-'+ episode[0], this.url);
         let script = `
         new Promise(resolve => {
@@ -73,7 +71,7 @@ export default class AnimeFLV extends Connector {
             return {
                 id : video.code,
                 title : 'Episode '+ episode[0] + ' ['+video.title+']'
-            }
+            };
         });
     }
     async _getPages(chapter) {
@@ -82,23 +80,19 @@ export default class AnimeFLV extends Connector {
         let vid = '';
         switch (hoster) {
             case '[Stape]':
-               vid = await new StreamTape(uri).getStream();
-               return {video : vid};
-            break;
+                vid = await new StreamTape(uri).getStream();
+                return {video : vid};
             case '[YourUpload]':
-               vid = await new YourUpload(uri).getStream();
-               return {video : vid, referer : 'https://www.yourupload.com'};
-            break;
+                vid = await new YourUpload(uri).getStream();
+                return {video : vid, referer : 'https://www.yourupload.com'};
             case '[SB]':
-               vid = await new StreamSB(uri).getStream();
-               return {mirrors : [vid]};
-            break;           
-             case '[Fembed]':
-               vid = await new Fembed(uri).getStream();
-               return {mirrors :  [vid], referrer : chapter.id};
-            break;   
-        	default:
-        		throw new Error('Hoster '+ hoster + ' not supported :/')
+                vid = await new StreamSB(uri).getStream();
+                return {mirrors : [vid]};
+            case '[Fembed]':
+                vid = await new Fembed(uri).getStream();
+                return {mirrors :  [vid], referrer : chapter.id};
+            default:
+                throw new Error('Hoster '+ hoster + ' not supported :/');
         }
     }
 }

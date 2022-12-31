@@ -10,7 +10,7 @@ export default class MangaMovil extends Connector {
     }
     async _getMangaFromURI(uri) {
         const request = new Request(uri, this.requestOptions);
-        const data = await this.fetchDOM(request, ('div.video-card-body div.video-title h1'));
+        const data = await this.fetchDOM(request, 'div.video-card-body div.video-title h1');
         return new Manga(this, uri.pathname, data[0].textContent.trim());
     }
     async _getMangas() {
