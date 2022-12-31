@@ -20,8 +20,8 @@ export default class ApoloManga extends Connector {
         const request = new Request(uri, this.requestOptions);
         const data = await this.fetchDOM(request, 'div.proyect');
         return data.map(element => {
-        	  let id = element.getAttribute('onclick');
-        	  id = id.match(/\/ver\/([0-9]+)/)[1];
+            let id = element.getAttribute('onclick');
+            id = id.match(/\/ver\/([0-9]+)/)[1];
             return {
                 id: id,
                 title: element.querySelector('div.proyect-tit').text.trim()

@@ -28,7 +28,7 @@ export default class DoujinZa extends WordPressMadara {
         const data = await this.fetchDOM(request, 'div.item-summary div.post-title h3 a');
         return data.map(element => {
             return {
-                id: element.pathname.split('/').slice(0,3).join('/'), //some mangas are direct link to the ONLY chapter (/facepalm)
+                id: element.pathname.split('/').slice(0, 3).join('/'), //some mangas are direct link to the ONLY chapter (/facepalm)
                 title: element.text.trim()
             };
         });

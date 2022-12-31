@@ -40,7 +40,7 @@ export default class Nana extends Connector {
     }
 
     async _getChapters(manga) {
-      return [{id: manga.id, title :manga.title}];
+        return [{id: manga.id, title :manga.title}];
     }
 
     async _getPages(chapter) {

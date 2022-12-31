@@ -1,7 +1,6 @@
 import Connector from '../engine/Connector.mjs';
 import Manga from '../engine/Manga.mjs';
 
-
 export default class HqNow extends Connector {
 
     constructor() {
@@ -99,7 +98,7 @@ export default class HqNow extends Connector {
         return data[gql.operationName][0].capitulos.map(chapter => {
             return {
                 id: chapter.id,
-                title: (chapter.name) ? chapter.number + ' : '+chapter.name.trim() : chapter.number,
+                title: chapter.name ? chapter.number + ' : '+chapter.name.trim() : chapter.number,
             };
         }).reverse();
     }
