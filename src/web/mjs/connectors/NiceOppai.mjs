@@ -14,22 +14,22 @@ export default class NiceOppai extends WordPressLightPro {
         this.queryPages = 'div#image-container source';
     }
 
-    async _getChaptersFromPage(manga, page){
+    async _getChaptersFromPage(manga, page) {
         const request = new Request (new URL(this.url + manga.id+ 'chapter-list/' + page), this.requestOptions);
         const data = await this.fetchDOM(request, this.queryChapters);
         return data.map(element => {
             return {
-                  id: this.getRelativeLink( element ),
-                  title: element.innerText.replace( manga.title, '' ).trim(),
-                  language: this.language
+                id: this.getRelativeLink( element ),
+                title: element.innerText.replace( manga.title, '' ).trim(),
+                language: this.language
             };
-        });    	
+        });
     }
 
     async _getPages(chapter) {
         const uri = new URL(chapter.id, this.url);
         const request = new Request(uri, this.requestOptions);
-        const data = await this.fetchDOM(request,  this.queryPages);
+        const data = await this.fetchDOM(request, this.queryPages);
         return data.map(image => this.getAbsolutePath(image, request.url));
     }
 }

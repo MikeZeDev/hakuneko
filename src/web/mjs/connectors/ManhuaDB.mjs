@@ -50,8 +50,7 @@ export default class ManhuaDB extends Connector {
                 id: this.getRootRelativeOrAbsoluteLink(element, this.url),
                 title: element.title.trim()
             };
-        })
-        .reverse();
+        }).reverse();
     }
     async _getPages(chapter) {
         const uri = new URL(chapter.id, this.url);
@@ -63,7 +62,7 @@ export default class ManhuaDB extends Connector {
         });
         `;
         const request = new Request(uri);
-        const response = await Engine.Request.fetchUI(request, script);   
+        const response = await Engine.Request.fetchUI(request, script);
         let pagelist = [];
         response.img_data_arr.forEach(image =>{
             pagelist.push(response.img_host+response.img_pre +image.img);

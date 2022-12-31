@@ -85,7 +85,7 @@ export default class MangaTigre extends Connector {
         const CDN = response.cdn;
         let keyz = Object.keys(chap.images).sort();
         let pagelist = [];
-        for (let i = 0; i < keyz.length; i++ ){
+        for (let i = 0; i < keyz.length; i++ ) {
             let key = keyz[i];
             let image = chap.images[key];
             let link = '//'.concat(CDN, '/chapters/').concat(chap.manga.slug, '/').concat(chap.number, '/').concat(image.name, '.').concat(image.format);
@@ -93,14 +93,12 @@ export default class MangaTigre extends Connector {
         }
         return pagelist;
     }
-    async getToken(url){
+    async getToken(url) {
         try{
             let request = new Request(url, this.requestOptions);
-            let data = await this.fetchDOM(request, 'button[data-token]',3);
+            let data = await this.fetchDOM(request, 'button[data-token]', 3);
             this.token = data[0].getAttribute('data-token');
-        }
-        catch(e)
-        {
+        } catch(e) {
         }
     }
 }

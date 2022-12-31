@@ -1,6 +1,8 @@
 import Connector from '../engine/Connector.mjs';
 import Manga from '../engine/Manga.mjs';
+
 export default class NovelMania extends Connector {
+
     constructor() {
         super();
         super.id = 'novelmania';
@@ -12,11 +14,13 @@ export default class NovelMania extends Connector {
         // parseInt(1200 / window.devicePixelRatio) + 'px';
         this.novelPadding = '1.5em';
     }
+
     async _getMangaFromURI(uri) {
         const request = new Request(uri, this.requestOptions);
         const data = await this.fetchDOM(request, 'meta[property="og:title"]');
         return new Manga(this, uri.pathname, data[0].content.trim());
     }
+
     async _getMangas() {
         let mangaList = [];
         const uri = new URL('/novels', this.url);
@@ -29,6 +33,7 @@ export default class NovelMania extends Connector {
         }
         return mangaList;
     }
+
     async _getMangasFromPage(page) {
         const uri = new URL('/novels/?page=' + page, this.url);
         const request = new Request(uri, this.requestOptions);
@@ -40,6 +45,7 @@ export default class NovelMania extends Connector {
             };
         });
     }
+
     async _getChapters(manga) {
         const uri = new URL(manga.id, this.url);
         const request = new Request(uri, this.requestOptions);
@@ -49,9 +55,9 @@ export default class NovelMania extends Connector {
                 id: this.getRootRelativeOrAbsoluteLink(element, this.url),
                 title: element.querySelector('span').textContent.trim()+ ':'+element.querySelector('strong').textContent.trim()
             };
-        })
-        .reverse();
+        }).reverse();
     }
+
     async _getPages(chapter) {
         const uri = new URL(chapter.id, this.url);
         const request = new Request(uri, this.requestOptions);

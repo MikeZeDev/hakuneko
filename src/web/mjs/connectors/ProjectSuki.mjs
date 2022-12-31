@@ -51,8 +51,7 @@ export default class ProjectSuki extends Connector {
         });
     }
 
-    async _getPages(chapter)
-    {
+    async _getPages(chapter) {
         const script = `
         new Promise((resolve, reject) => {
             const xrequesto = function (element, url, data, method)
