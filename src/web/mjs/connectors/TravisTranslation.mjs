@@ -1,7 +1,7 @@
 import WordPressMadaraNovel from './templates/WordPressMadaraNovel.mjs';
 import Manga from '../engine/Manga.mjs';
 
-export default class TravisTranslation  extends WordPressMadaraNovel {
+export default class TravisTranslation extends WordPressMadaraNovel {
 
     constructor() {
         super();

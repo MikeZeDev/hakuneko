@@ -18,7 +18,7 @@ export default class ComiCastle extends Connector {
     }
     async _getMangas() {
         let mangas = [];
-        for (let i = 0; i < this.pages.length; i++ ){
+        for (let i = 0; i < this.pages.length; i++ ) {
             const request = new Request(new URL(this.path+this.pages[i], this.url), this.requestOptions);
             const data = await this.fetchDOM(request, 'div.table-responsive a:not([class])');
             mangas.push(...data.map(element => {

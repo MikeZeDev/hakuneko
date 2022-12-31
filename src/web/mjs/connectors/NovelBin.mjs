@@ -12,8 +12,7 @@ export default class NovelBin extends Connector {
         this.novelFormat = 'image/png';
         this.novelWidth = '56em'; // parseInt(1200 / window.devicePixelRatio) + 'px';
         this.novelPadding = '1.5em';
-        
-        
+
     }
     async _getMangaFromURI(uri) {
         const request = new Request(uri, this.requestOptions);
@@ -50,7 +49,7 @@ export default class NovelBin extends Connector {
         slug = slug[slug.length-1];
         const request = new Request(new URL('/ajax/chapter-archive?novelId='+slug, this.url), this.requestOptions);
         request.headers.set('X-Requested-With', 'XMLHttpRequest');
- 
+
         const data = await this.fetchDOM(request, 'ul.list-chapter li a');
         return data.map(element => {
             return {
