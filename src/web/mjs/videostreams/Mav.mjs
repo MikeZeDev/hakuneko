@@ -6,7 +6,7 @@ export default class Mav {
         this.website = originwebsite;
     }
     async getStream() {
-        let uri = new URL('/api/source/'+this.videoid ,this._uri.origin);
+        let uri = new URL('/api/source/'+this.videoid, this._uri.origin);
         let body = {
             'r': this.website,
             'd': this.hostname,
