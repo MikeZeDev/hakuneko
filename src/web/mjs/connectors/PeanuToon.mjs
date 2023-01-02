@@ -9,7 +9,7 @@ export default class PeanuToon extends Connector {
         this.url = 'https://www.peanutoon.com';
     }
     async _getMangas() {
-        let msg = 'This website does not provide a manga list, please copy and paste the URL containing the chapters directly from your browser into HakuNeko.';
+        const msg = 'This website does not provide a manga list, please copy and paste the URL containing the chapters directly from your browser into HakuNeko.';
         throw new Error(msg);
     }
     async _getMangaFromURI(uri) {
