@@ -25,7 +25,7 @@ export default class Manhwa18cc extends WordPressMadara {
         for (let page = 1, run = true; run; page++) {
             let mangas = await this._getMangasFromPage(page);
             mangaList.push(...mangas);
-            if (mangas.length != this.mangaNumberPerPage){
+            if (mangas.length != this.mangaNumberPerPage) {
                 run = false;
             }
         }
@@ -33,7 +33,7 @@ export default class Manhwa18cc extends WordPressMadara {
     }
     async _getMangasFromPage(page) {
         let request = new Request(new URL(this.path+'/'+page, this.url), this.requestOptions);
-        let data = await this.fetchDOM(request,this.queryMangas);
+        let data = await this.fetchDOM(request, this.queryMangas);
         return data.map(element => {
             return {
                 id: this.getRootRelativeOrAbsoluteLink(element, request.url),

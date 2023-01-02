@@ -1,5 +1,6 @@
 import Connector from '../engine/Connector.mjs';
 import BloggerVideo from '../videostreams/BloggerVideo.mjs';
+
 export default class AniZero extends Connector {
     constructor() {
         super();
@@ -7,39 +8,35 @@ export default class AniZero extends Connector {
         super.label = 'AniZero';
         this.tags = [ 'anime', 'spanish' ];
         this.url = 'https://anizero.site';
-        this.search_nonce = undefined;
     }
-    async getnoonce(){
-        if (this.search_nonce){
-            return;
-        }
+    async getnoonce() {
         let url = new URL(this.url);
-        let request = new Request(url, this.requestOptions);
-        let scriptPages = `
+        const request = new Request(url, this.requestOptions);
+        const scriptPages = `
         new Promise(resolve => {
             resolve(js_global.search_nonce);
         });
         `;
-        this.search_nonce = await Engine.Request.fetchUI(request, scriptPages);
+        return await Engine.Request.fetchUI(request, scriptPages);
     }
     async _getMangas() {
-        this.getnoonce();
+        const noonce = await this.getnoonce();
         let mangaList = [];
         for (let page = 1, run = true; run; page++) {
-            let mangas = await this._getMangasFromPage(page);
+            let mangas = await this._getMangasFromPage(page, noonce);
             mangas.length > 0 ? mangaList.push(...mangas) : run = false;
         }
         return mangaList;
     }
-    async _getMangasFromPage(page) {
+    async _getMangasFromPage(page, noonce) {
         let form = new URLSearchParams();
-        form.append('search_nonce', this.search_nonce);
+        form.append('search_nonce', noonce);
         form.append('action', 'show_animes_ajax');
         form.append('letra', '');
         form.append('paged', page);
-        let body = form.toString();
-        let url = new URL('/wp-admin/admin-ajax.php', this.url);
-        let request = new Request(url, {
+        const body = form.toString();
+        const url = new URL('/wp-admin/admin-ajax.php', this.url);
+        const request = new Request(url, {
             method: 'POST',
             body: body,
             headers: {
@@ -49,8 +46,8 @@ export default class AniZero extends Connector {
                 'X-Requested-With': 'XMLHttpRequest',
             }
         });
-        let data = await this.fetchJSON(reques);
-        if (!data.animes){
+        const data = await this.fetchJSON(request);
+        if (!data.animes) {
             return [];
         }
         return data.animes.map(element => {
@@ -69,8 +66,8 @@ export default class AniZero extends Connector {
         let form = new URLSearchParams();
         form.append('action', 'show_videos');
         form.append('anime_id', mangaid);
-        let body = form.toString();
-        let url = new URL('/api', this.url);
+        const body = form.toString();
+        const url = new URL('/api', this.url);
         request = new Request(url, {
             method: 'POST',
             body: body,
@@ -112,40 +109,46 @@ export default class AniZero extends Connector {
             });
         }
         chapterslist.push(...chapters);
-        return(chapterslist.reverse());
+        return chapterslist.reverse();
     }
     async _getPages(chapter) {
         let request = new Request(new URL(chapter.id, this.url), this.requestOptions);
-        let scriptPages = `
-        new Promise(resolve => {
-            resolve(players_links);
+        const script = `
+        new Promise((resolve, reject) => {
+            setTimeout(() => {
+                try {
+                    resolve(players_links);
+                }
+                catch(error) {
+                    reject(error);
+                }
+            },
+            3000);
         });
         `;
-        let data = await Engine.Request.fetchUI(request, scriptPages);
+        let data = await Engine.Request.fetchUI(request, script);
         let videolink = Object.values(data)[0];
         //remove redirector
-        if(videolink.match(/assistirFHD/)){
+        if(videolink.match(/assistirFHD/)) {
             let tmp = new URL(videolink);
             videolink = decodeURI(tmp.searchParams.get("video"));
         }
         //if link is not already blogger
-        if (!videolink.match(/blogger/))
-        {
+        if (!videolink.match(/blogger/)) {
             //fetch the dom returned by the link -its html=
             request = new Request(videolink, this.requestOptions);
             data = await this.fetchDOM( request, 'body');
             let ele = data[0].querySelectorAll('script');
             ele.forEach(node =>{
-                if (node.text.match(/blogger/)){
+                if (node.text.match(/blogger/)) {
                     videolink = node.text.split("'").filter(el => el.match(/blogger/))[0];
                 }
             });
         }
-        if (!videolink.match(/blogger/))
-        {
+        if (!videolink.match(/blogger/)) {
             throw Error('Unsupported Video host : '+ videolink);
         }
-        let vid = await new BloggerVideo(videolink).getStream();
+        const vid = await new BloggerVideo(videolink).getStream();
         return {video: vid, subtitles: [] };
     }
 }

@@ -14,17 +14,17 @@ export default class MangaTales extends Connector {
                 exclude: []
             },
             oneshot: {
-            value: null },
+                value: null },
             story_status: {
-            include: [], exclude: [] },
+                include: [], exclude: [] },
             translation_status: {
-            include: [], exclude: ['3'] },
+                include: [], exclude: ['3'] },
             categories: {
-            include: [], exclude: [] },
+                include: [], exclude: [] },
             chapters: {
-            min: '', max: '' },
+                min: '', max: '' },
             dates: {
-            start: null, end: null },
+                start: null, end: null },
             page: 0
         };
     }
@@ -66,7 +66,7 @@ export default class MangaTales extends Connector {
             // mangaTitle.replace(/\s+/g, '-').replace(/[^-\w]+/gi, '').toLowerCase();
         }
         let request = new Request(new URL(`/api/mangas/${
-        manga.id}
+            manga.id}
         `, this.url), this.requestOptions);
         let data = await this.fetchJSON(request);
         data = data['iv'] ? this._haqiqa(data.data) : data;
@@ -93,11 +93,9 @@ export default class MangaTales extends Connector {
         let images = [];
         if (data.hq_pages && data.hq_pages.length > 0) {
             images = data.hq_pages.split('\r\n');
-        }
-        else if (data.mq_pages && data.mq_pages.length > 0) {
+        } else if (data.mq_pages && data.mq_pages.length > 0) {
             images = data.mq_pages.split('\r\n');
-        }
-        else if (data.lq_pages && data.lq_pages.length > 0) {
+        } else if (data.lq_pages && data.lq_pages.length > 0) {
             images = data.lq_pages.split('\r\n');
         }
         return images.map(image => {
@@ -139,20 +137,20 @@ export default class MangaTales extends Connector {
         return (this._r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) {
             return typeof t;
         }
-        : function (t) {
-            return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t;
-        }
+            : function (t) {
+                return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t;
+            }
         )(t);
     }
     _a(t) {
         return (this._a = "function" == typeof Symbol && "symbol" === this._r(Symbol.iterator) ? function (t) {
             return this._r(t);
         }
-        .bind(this)
-        : function (t) {
-            return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : this._r(t);
-        }
-        .bind(this)
+            .bind(this)
+            : function (t) {
+                return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : this._r(t);
+            }
+                .bind(this)
         )(t);
     }
     _isObject(t) {
@@ -165,45 +163,45 @@ export default class MangaTales extends Connector {
     }
     _haqiqa(t) {
         let c = {
-        default: CryptoJS };
+            default: CryptoJS };
         if (!this._dataExists(t) || "string" != typeof t)
-        return !1;
+            return !1;
         var e = t.split("|")
-        , n = e[0]
-        , r = e[2]
-        , o = e[3]
-        , i = c.default.SHA256(o).toString()
-        , a = c.default.AES.decrypt({
-            ciphertext: c.default.enc.Base64.parse(n)
-        },
-        c.default.enc.Hex.parse(i), {
-            iv: c.default.enc.Base64.parse(r)
-        });
+            , n = e[0]
+            , r = e[2]
+            , o = e[3]
+            , i = c.default.SHA256(o).toString()
+            , a = c.default.AES.decrypt({
+                ciphertext: c.default.enc.Base64.parse(n)
+            },
+            c.default.enc.Hex.parse(i), {
+                iv: c.default.enc.Base64.parse(r)
+            });
         return JSON.parse(c.default.enc.Utf8.stringify(a));
     }
     _unpack(t) {
         var e = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : 1;
         if (!t || e > t.maxLevel)
-        return t;
+            return t;
         if (!this._isObject(t) || !t.isCompact)
-        return t;
+            return t;
         var n = t.cols
-        , r = t.rows;
+            , r = t.rows;
         if (t.isObject) {
             var o = {}
-            , i = 0;
+                , i = 0;
             return n.forEach(function (t) {
                 o[t] = this._unpack(r[i], e + 1),
                 i += 1;
             }
-            .bind(this)),
+                .bind(this)),
             o;
         }
         if (t.isArray) {
             o = [];
             return r.forEach(function (t) {
                 var e = {}
-                , r = 0;
+                    , r = 0;
                 n.forEach(function (n) {
                     e[n] = t[r],
                     r += 1;

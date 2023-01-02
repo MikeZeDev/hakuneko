@@ -1,5 +1,5 @@
 import Connector from '../engine/Connector.mjs';
-import Manga from '../engine/Manga.mjs';
+
 export default class Yurineko extends Connector {
     constructor() {
         super();
@@ -10,7 +10,6 @@ export default class Yurineko extends Connector {
         this.api = 'https://api.yurineko.net';
     }
     async _getMangas() {
-        let mangaList = [];
         let uri = new URL('/directory/general', this.api);
         const request = new Request(uri, this.requestOptions);
         let data = await this.fetchJSON(request);
@@ -18,7 +17,7 @@ export default class Yurineko extends Connector {
             return {
                 id: '/manga/'+element.id,
                 title : element.originalName.trim()
-            }
+            };
         });
     }
     async _getChapters(manga) {
@@ -29,7 +28,7 @@ export default class Yurineko extends Connector {
             return {
                 id: '/read/'+element.mangaID+'/'+element.id,
                 title : element.name.trim()
-            }
+            };
         });
     }
     async _getPages(chapter) {
@@ -40,7 +39,7 @@ export default class Yurineko extends Connector {
         return j.props.pageProps.chapterData.url.map( el => {
             return this.createConnectorURI({
                 url : el
-            })
+            });
         });
     }
     async _handleConnectorURI(payload) {
