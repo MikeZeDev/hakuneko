@@ -14,7 +14,7 @@ export default class HqNow extends Connector {
 
     async _getMangaFromURI(uri) {
         const id = parseInt(uri.pathname.match(/\/hq\/([0-9]+)/)[1]);
-        let gql = {
+        const gql = {
             operationName: 'getHqsById',
             variables: {
                 id: id
@@ -43,7 +43,7 @@ export default class HqNow extends Connector {
     }
 
     async _getMangas() {
-        let gql = {
+        const gql = {
             operationName: 'getHqsByNameStartingLetter',
             variables: {
                 letter: '0-z'
@@ -70,7 +70,7 @@ export default class HqNow extends Connector {
     }
 
     async _getChapters(manga) {
-        let gql = {
+        const gql = {
             operationName: 'getHqsById',
             variables: {
                 id: manga.id
@@ -104,7 +104,7 @@ export default class HqNow extends Connector {
     }
 
     async _getPages(chapter) {
-        let gql = {
+        const gql = {
             operationName: 'getChapterById',
             variables: {
                 chapterId: chapter.id
