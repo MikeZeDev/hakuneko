@@ -58,21 +58,21 @@ export default class Manga1001 extends MadTheme {
             const ctx = canvas.getContext('2d');
             canvas.width = bitmap.width;
             canvas.height = bitmap.height;
-            const sl1 = slicedata.shift();
-            const sl2 = slicedata.shift();
-            const colnum = canvas.width / sl1;
-            const rownum = canvas.height/ sl2;
+            const colNum = slicedata.shift();
+            const rowNum = slicedata.shift();
+            const pieceWidth = canvas.width / colNum;
+            const pieceHeight = canvas.height/rowNum;
             for (var i = 0; i< slicedata.length; i++) {
                 var f = slicedata[i];
-                var b = parseInt(f / sl1);
-                var c = f - b * sl1;
-                var d = c * colnum;
-                var e = b * rownum;
-                var a = parseInt(i / sl1);
-                var g = i - a * sl1;
-                var k = g * colnum;
-                var h = a * rownum;
-                ctx.drawImage(bitmap, k, h, colnum, rownum, d, e, colnum, rownum);
+                var b = parseInt(f / colNum);
+                var c = f - b * colNum;
+                var d = c * pieceWidth;
+                var e = b * pieceHeight;
+                var a = parseInt(i / colNum);
+                var g = i - a * colNum;
+                var k = g * pieceWidth;
+                var h = a * pieceHeight;
+                ctx.drawImage(bitmap, k, h, pieceWidth, pieceHeight, d, e, pieceWidth, pieceHeight);
             }
             canvas.toBlob(data => {
                 resolve(data);
