@@ -49,8 +49,7 @@ export default class Azuki extends Connector {
         });
     }
     async _getPages(chapter) {
-        let chapterid = chapter.id.split('/');
-        chapterid = chapterid[chapterid.length-1];
+        let chapterid = chapter.id.split('/').pop();
         const uri = new URL('/chapter/'+chapterid+'/pages/v0', this.api);
         const request = new Request(uri, this.requestOptions);
         request.headers.set('x-referer', this.url);
@@ -65,11 +64,11 @@ export default class Azuki extends Connector {
     }
     async _handleConnectorURI(payload) {
         const j = JSON.parse(payload);
-        const image = j.image.jpg[j.image.jpg.length-1];//last image best quality
+        const image = j.image.jpg.pop();//last image best quality
         const request = new Request(image.url, this.requestOptions);
         const response = await fetch(request);
-        let data = await response.blob();
-        data = await this._blobToBuffer(data);
+        const response = await response.blob();
+        let data = await this._blobToBuffer(response);
         const key = data.data[0] ^ 255; //$FF is first byte of jpeg header, for webp use ascii code for 'R' (wepb header is RIFF)
         data = {
             mimeType: response.headers.get('content-type'),
