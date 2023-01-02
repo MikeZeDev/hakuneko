@@ -10,8 +10,7 @@ export default class ApoloManga extends Connector {
     }
     async _getMangaFromURI(uri) {
         const request = new Request(uri, this.requestOptions);
-        let id = uri.href.split('/');
-        id = id[id.length-1];
+        const id = uri.href.split('/').pop();
         const data = await this.fetchDOM(request, 'div.titulo h1');
         return new Manga(this, id, data[0].textContent.trim());
     }
