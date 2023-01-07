@@ -4,7 +4,7 @@ export default class MadTheme extends Connector {
     constructor() {
         super();
         super.id = undefined;
-        super.label = undefined;    
+        super.label = undefined;
         this.tags = [];
         this.url = undefined;
         this.path = '/az-list';
@@ -40,11 +40,11 @@ export default class MadTheme extends Connector {
         });
     }
     async _getChapters(manga) {
-    	let mangaid = manga.id.split('/');
-    	mangaid = '/'+mangaid[mangaid.length - 1];//make sure to take last part of url for the api
-        let uri = new URL('/api/manga'+mangaid+'/chapters?source=detail', this.url);
-        let request = new Request(uri, this.requestOptions);
-        let data = await this.fetchDOM(request, 'a');
+        let mangaid = manga.id.split('/').pop();
+        mangaid = '/'+mangaid;//make sure to take last part of url for the api
+        const uri = new URL('/api/manga'+mangaid+'/chapters?source=detail', this.url);
+        const request = new Request(uri, this.requestOptions);
+        const data = await this.fetchDOM(request, 'a');
         return data.map(element => {
             const link = element.pathname;
             const title = element.querySelector(this.queryChapterTitle).textContent.trim();
@@ -60,14 +60,14 @@ export default class MadTheme extends Connector {
             resolve(final_images);
         });
         `;
-        let request = new Request(this.url + chapter.id, this.requestOptions);
-        let data = await Engine.Request.fetchUI(request, scriptPages);
+        const request = new Request(this.url + chapter.id, this.requestOptions);
+        const data = await Engine.Request.fetchUI(request, scriptPages);
         return data.map(element => this.createConnectorURI(this.getAbsolutePath(element, request.url)));
     }
     async _handleConnectorURI(payload) {
         let request = new Request(payload, this.requestOptions);
         request.headers.set('x-referer', this.url);
-        let response = await fetch(request);
+        const response = await fetch(request);
         let data = await response.blob();
         data = await this._blobToBuffer(data);
         this._applyRealMime(data);
