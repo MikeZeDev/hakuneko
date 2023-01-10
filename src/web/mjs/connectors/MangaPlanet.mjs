@@ -1,6 +1,8 @@
 import SpeedBinb from './templates/SpeedBinb.mjs';
 import Manga from '../engine/Manga.mjs';
 
+//Copied from Futekiya
+
 export default class MangaPlanet extends SpeedBinb {
 
     constructor() {
@@ -9,14 +11,15 @@ export default class MangaPlanet extends SpeedBinb {
         super.label = 'Manga Planet';
         this.tags = ['manga', 'english'];
         this.url = 'https://read.mangaplanet.com';
+        this.requestOptions.headers.set('x-referer', this.url + '/');
+        this.requestOptions.headers.set('x-cookie', 'faconf=' + 18);
+
     }
 
     async _getMangaFromURI(uri) {
-        let request = new Request(uri, this.requestOptions);
-        let data = await this.fetchDOM(request, '.card-body.book-detail h3');
-        let id = uri.pathname;
-        let title = data[0].innerText.trim();
-        return new Manga(this, id, title);
+        const request = new Request(uri, this.requestOptions);
+        const data = await this.fetchDOM(request, '.card-body.book-detail h3');
+        return new Manga(this, uri.pathname, data[0].innerText.trim());
     }
 
     async _getMangas() {
@@ -27,7 +30,7 @@ export default class MangaPlanet extends SpeedBinb {
         maxPageCount = parseInt(newpagecount[0].innerText.trim());
         for (let i = 1; i <= maxPageCount; i++) {
             request = new Request(new URL('/browse?page=' + i, this.url), this.requestOptions);
-            const data = await this.fetchDOM(request, ".contents.comics .linkbox");
+            const data = await this.fetchDOM(request, '.contents.comics .linkbox');
             for (let element of data) {
                 mangas.push({
                     id: this.getRootRelativeOrAbsoluteLink(element.querySelector('a').pathname, this.url),
@@ -37,6 +40,7 @@ export default class MangaPlanet extends SpeedBinb {
         }
         return mangas;
     }
+
     async _getChapters(manga) {
         const uri = new URL(manga.id, this.url);
         const request = new Request(uri, this.requestOptions);
@@ -64,16 +68,7 @@ export default class MangaPlanet extends SpeedBinb {
                 });
             }
         }
-
         return chapters;
     }
-    _getPageList(manga, chapter, callback) {
-        this.requestOptions.headers.set('x-referer', this.url + '/');
-        //add 18 plus cookie otherwise you can get redirected to a different page
-        this.requestOptions.headers.set('x-cookie', 'faconf=' + 18);
-        let data = super._getPageList(manga, chapter, callback);
-        const url = new URL(chapter.id, this.baseURL);
-        this.requestOptions.headers.set('x-referer', url);
-        return data;
-    }
+
 }

@@ -1,6 +1,10 @@
 import Connector from '../engine/Connector.mjs';
 import Manga from '../engine/Manga.mjs';
+
+//very similar to GMANGA
+
 export default class MangaTales extends Connector {
+
     constructor() {
         super();
         super.id = 'mangatales';
@@ -32,10 +36,7 @@ export default class MangaTales extends Connector {
         let request = new Request(uri, this.requestOptions);
         let data = await this.fetchDOM(request, 'script[data-component-name="HomeApp"]');
         data = JSON.parse(data[0].textContent);
-        let id = data.mangaDataAction.mangaData.id;
-        let title = data.mangaDataAction.mangaData.title;
-        // data.mangaDataAction.mangaData.arabic_title
-        return new Manga(this, id, title);
+        return new Manga(this, data.mangaDataAction.mangaData.id, data.mangaDataAction.mangaData.title.trim());
     }
     async _getMangas() {
         let mangaList = [];
@@ -105,10 +106,6 @@ export default class MangaTales extends Connector {
         });
     }
     async _handleConnectorURI(payload) {
-        /*
-        * TODO: only perform requests when from download manager
-        * or when from browser for preview and selected chapter matches
-        */
         let uri = new URL(payload, this.url);
         // See: https://gmanga.me/assets/javascripts/main_v38.js
         let lease = (parseInt(Date.now() / 1000) + 120).toString(36);

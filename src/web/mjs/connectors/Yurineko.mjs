@@ -9,10 +9,11 @@ export default class Yurineko extends Connector {
         this.url = 'https://yurineko.net';
         this.api = 'https://api.yurineko.net';
     }
+
     async _getMangas() {
-        let uri = new URL('/directory/general', this.api);
+        const uri = new URL('/directory/general', this.api);
         const request = new Request(uri, this.requestOptions);
-        let data = await this.fetchJSON(request);
+        const data = await this.fetchJSON(request);
         return data.map (element => {
             return {
                 id: '/manga/'+element.id,
@@ -20,10 +21,11 @@ export default class Yurineko extends Connector {
             };
         });
     }
+
     async _getChapters(manga) {
-        let uri = new URL(manga.id, this.api);
+        const uri = new URL(manga.id, this.api);
         const request = new Request(uri, this.requestOptions);
-        let data = await this.fetchJSON(request);
+        const data = await this.fetchJSON(request);
         return data.chapters.map (element => {
             return {
                 id: '/read/'+element.mangaID+'/'+element.id,
@@ -31,21 +33,19 @@ export default class Yurineko extends Connector {
             };
         });
     }
+
     async _getPages(chapter) {
-        let uri = new URL(chapter.id, this.url);
+        const uri = new URL(chapter.id, this.url);
         const request = new Request(uri, this.requestOptions);
-        let data = await this.fetchDOM(request, '#__NEXT_DATA__');
-        let j = JSON.parse(data[0].text);
-        return j.props.pageProps.chapterData.url.map( el => {
-            return this.createConnectorURI({
-                url : el
-            });
-        });
+        const data = await this.fetchDOM(request, '#__NEXT_DATA__');
+        const jsonData = JSON.parse(data[0].text);
+        return jsonData.props.pageProps.chapterData.url.map( element => this.createConnectorURI({url : element}));
     }
+
     async _handleConnectorURI(payload) {
         let request = new Request(payload.url, this.requestOptions);
         request.headers.set('x-referer', this.url);
-        let response = await fetch(request);
+        const response = await fetch(request);
         let data = await response.blob();
         data = await this._blobToBuffer(data);
         this._applyRealMime(data);
