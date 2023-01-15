@@ -1,4 +1,5 @@
 import Connector from '../engine/Connector.mjs';
+import Manga from '../engine/Manga.mjs';
 
 export default class Yurineko extends Connector {
     constructor() {
@@ -8,6 +9,13 @@ export default class Yurineko extends Connector {
         this.tags = ['manga', 'hentai', 'vietnamese'];
         this.url = 'https://yurineko.net';
         this.api = 'https://api.yurineko.net';
+    }
+
+    async _getMangaFromURI(uri) {
+        const mangaid = uri.href.match(/manga\/([\d]+)/)[1];
+        const request = new Request(new URL('/manga/'+mangaid, this.api), this.requestOptions);
+        const data = await this.fetchJSON(request);
+        return new Manga(this, uri.pathname, data.originalName.trim());
     }
 
     async _getMangas() {
