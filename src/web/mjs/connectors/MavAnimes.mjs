@@ -10,14 +10,30 @@ export default class MavAnime extends Connector {
         super.id = 'mavanimes';
         super.label = 'MavAnimes';
         this.tags = [ 'anime', 'french', 'multi-lingual' ];
-        this.url = 'https://mavanimes.co';
+        this.url = 'https://www.mavanimes.co';
         this.genres = ['/tous-les-animes-en-vf', '/tous-les-animes-en-vostfr-fullhd-2'];
+        this.config = {
+            resolution: {
+                label: 'Preferred Resolution',
+                description: 'Try to download video in the selected resolution.\nIf the resolution is not supported, depending on the mirror the download may fail, or a fallback resolution may be used!',
+                input: 'select',
+                options: [
+                    { value: '', name: 'Mirror\'s Default' },
+                    { value: '360p', name: '360p' },
+                    { value: '480p', name: '480p' },
+                    { value: '720p', name: '720p' },
+                    { value: '1080p', name: '1080p' }
+                ],
+                value: ''
+            }
+        };
+
     }
 
     async _getMangas() {
         let mangaslist = [];
-        for (let i = 0; i < this.genres.length; i++) {
-            let request = new Request( new URL(this.genres[i], this.url), this.requestOptions );
+        for (let genre of this.genres) {
+            let request = new Request( new URL(genre, this.url), this.requestOptions );
             let data = await this.fetchDOM( request, 'div#az-slider li a' );
             let mangas = data.map(element => {
                 return {
@@ -50,10 +66,7 @@ export default class MavAnime extends Connector {
         // Somes film does not have a chapter page and just one page with video frames
         if (chapterslist.length == 0) {
             try{
-                let testnode= document.createElement("a");
-                testnode.href = new URL(manga.id, this.url);
-                testnode.text = manga.title;
-                chapterslist.push(...await this.getChapterPlayers(testnode));
+                chapterslist.push(...await this.getChapterPlayers(new URL(manga.id, this.url), manga));
             } catch(e) {
             //
             }
@@ -64,8 +77,10 @@ export default class MavAnime extends Connector {
         return chapterslist;
     }
 
-    async getChapterPlayers(chapterNode) {
-        let request = new Request(chapterNode.href, this.requestOptions);
+    async getChapterPlayers(chapterNode, manga) {
+    	  const link = chapterNode.href ? chapterNode.href : chapterNode;
+    	  const title = chapterNode.text ? chapterNode.text.trim() : manga.title;
+        let request = new Request(link, this.requestOptions);
         let scriptPages = `
         new Promise(resolve => {
             resolve([...document.querySelectorAll('iframe')].map(el => el.src));
@@ -76,7 +91,7 @@ export default class MavAnime extends Connector {
             let sourcesite = this.getWebsiteTag(element);
             return {
                 id: element,
-                title : sourcesite + ' '+ chapterNode.text.replace(':•', '').trim()
+                title : sourcesite + ' '+ title.replace(':•', '').trim()
             };
         }).filter(el => !el.title.match(/\[UNK\]/));
     }
@@ -87,7 +102,7 @@ export default class MavAnime extends Connector {
         switch(sourcesite) {
             case '[MAV]':
             {
-                let vid = await new Mav(this.url, chapter.id).getStream();
+                let vid = await new Mav(this.url, chapter.id).getStream(this.config.resolution.value);
                 return vid.type == 'mp4' ? {video: vid.file, subtitles: [] }: {hash: 'id,language,resolution', mirrors: [ vid.file ], subtitles: [], referer : chapter.id };
             }
             case '[Streamtape]':
