@@ -67,8 +67,8 @@ export default class Azuki extends Connector {
         const image = j.image.jpg.pop();//last image best quality
         const request = new Request(image.url, this.requestOptions);
         const response = await fetch(request);
-        const response = await response.blob();
-        let data = await this._blobToBuffer(response);
+        let data = await response.blob();
+        data = await this._blobToBuffer(data);
         const key = data.data[0] ^ 255; //$FF is first byte of jpeg header, for webp use ascii code for 'R' (webp header is RIFF)
         data = {
             mimeType: response.headers.get('content-type'),
