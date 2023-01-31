@@ -49,7 +49,7 @@ export default class Azuki extends Connector {
         });
     }
     async _getPages(chapter) {
-        let chapterid = chapter.id.split('/').pop();
+        const chapterid = chapter.id.split('/').pop();
         const uri = new URL('/chapter/'+chapterid+'/pages/v0', this.api);
         const request = new Request(uri, this.requestOptions);
         request.headers.set('x-referer', this.url);
@@ -69,7 +69,7 @@ export default class Azuki extends Connector {
         const response = await fetch(request);
         const response = await response.blob();
         let data = await this._blobToBuffer(response);
-        const key = data.data[0] ^ 255; //$FF is first byte of jpeg header, for webp use ascii code for 'R' (wepb header is RIFF)
+        const key = data.data[0] ^ 255; //$FF is first byte of jpeg header, for webp use ascii code for 'R' (webp header is RIFF)
         data = {
             mimeType: response.headers.get('content-type'),
             data: this._decryptXOR(data.data, key)
