@@ -1,6 +1,8 @@
 import Connector from '../engine/Connector.mjs';
 import Manga from '../engine/Manga.mjs';
+
 export default class Azuki extends Connector {
+
     constructor() {
         super();
         super.id = 'azuki';
@@ -8,6 +10,32 @@ export default class Azuki extends Connector {
         this.tags = [ 'manga', 'english' ];
         this.url = 'https://www.azuki.co';
         this.api = 'https://production.api.azuki.co';
+        this.expirein =
+        this.config = {
+            format:  {
+                label: 'Preferred format',
+                description: 'format of images\nwebp (low)\njpg (medium)\npng (high))',
+                input: 'select',
+                options: [
+                    { value: 'webp', name: 'webp' },
+                    { value: 'jpg', name: 'jpg' },
+                ],
+                value: 'jpg'
+            },
+            quality: {
+                label: 'Quality Settings',
+                description: 'Choose the quality of pictures',
+                input: 'select',
+                options: [
+                    { value: '3', name: 'best' },
+                    { value: '2', name: 'hd' },
+                    { value: '1', name: 'sd' },
+                    { value: '0', name: 'low' },
+                ],
+                value: '0'
+            }
+        };
+
     }
     async _getMangaFromURI(uri) {
         const request = new Request(uri, this.requestOptions);
@@ -49,11 +77,13 @@ export default class Azuki extends Connector {
         });
     }
     async _getPages(chapter) {
+        const token = await this.getToken();
         const chapterid = chapter.id.split('/').pop();
         const uri = new URL('/chapter/'+chapterid+'/pages/v0', this.api);
         const request = new Request(uri, this.requestOptions);
         request.headers.set('x-referer', this.url);
         request.headers.set('x-origin', this.url);
+        if(token) request.headers.set('X-USER-TOKEN', token);
         let data = '';
         try {
             data = await this.fetchJSON(request);
@@ -63,13 +93,24 @@ export default class Azuki extends Connector {
         return data.pages.map(image => this.createConnectorURI(JSON.stringify(image)));
     }
     async _handleConnectorURI(payload) {
-        const j = JSON.parse(payload);
-        const image = j.image.jpg.pop();//last image best quality
+        const jObject = JSON.parse(payload);
+        //format
+        const imagearray = jObject.image[this.config.format.value];
+
+        //quality
+        const image = imagearray[this.config.quality.value];
+
         const request = new Request(image.url, this.requestOptions);
         const response = await fetch(request);
         let data = await response.blob();
         data = await this._blobToBuffer(data);
-        const key = data.data[0] ^ 255; //$FF is first byte of jpeg header, for webp use ascii code for 'R' (webp header is RIFF)
+
+        let key = '';
+        //find one byte XOR key
+        if (this.config.format.value == 'jpg') {
+            key = data.data[0] ^ 255; //$FF (first byte of a JPEG)
+        } else key = data.data[0] ^ 82;//$52 = "R" (webp starts with "RIFF")
+
         data = {
             mimeType: response.headers.get('content-type'),
             data: this._decryptXOR(data.data, key)
@@ -88,4 +129,18 @@ export default class Azuki extends Connector {
             return encrypted;
         }
     }
+
+    async getToken() {
+        let data = '';
+        const request = new Request(this.url, this.requesOptions);
+        try {
+            data = await Engine.Request.fetchUI( request, `new Promise( resolve => resolve( decodeURIComponent( document.cookie ).match( /idToken=([^;]+);/ )[1] ) )` );
+
+        } catch(error) {
+            return null;
+        }
+        return data;
+
+    }
+
 }
