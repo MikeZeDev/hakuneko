@@ -40,7 +40,7 @@ export default class Azuki extends Connector {
     async _getChapters(manga) {
         const uri = new URL(manga.id, this.url);
         const request = new Request(uri, this.requestOptions);
-        const data = await this.fetchDOM(request, 'a.a-card-link');
+        const data = await this.fetchDOM(request, 'li.m-card a.a-card-link');
         return data.map(element => {
             return {
                 id: this.getRootRelativeOrAbsoluteLink(element, this.url),
