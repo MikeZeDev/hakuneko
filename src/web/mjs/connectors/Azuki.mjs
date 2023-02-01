@@ -131,8 +131,12 @@ export default class Azuki extends Connector {
     }
 
     async getToken() {
+        //force page refresh to refresh token (sent by Set-Cookie header in request answer)
+        let request = new Request(this.url, this.requesOptions);
+        await Engine.Request.fetchUI( request, `window.location.reload()` );
+
         let data = '';
-        const request = new Request(this.url, this.requesOptions);
+        request = new Request(this.url, this.requestOptions);
         try {
             data = await Engine.Request.fetchUI( request, `new Promise( resolve => resolve( decodeURIComponent( document.cookie ).match( /idToken=([^;]+);/ )[1] ) )` );
 
