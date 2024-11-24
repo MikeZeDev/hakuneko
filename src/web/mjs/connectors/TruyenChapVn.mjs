@@ -9,4 +9,5 @@ export default class TruyenChapVn extends FlatManga {
         this.tags = ['vietnamese', 'manga' ];
         this.url = 'https://truyen.chap.vn';
     }
+
 }

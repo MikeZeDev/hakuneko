@@ -15,7 +15,7 @@ export default class ManhwaHub extends WordPressMadara {
         const uri = new URL(this.url);
         const request = new Request(uri, this.requestOptions);
         const data = await this.fetchDOM(request, 'ul.pager li:nth-last-of-type(2) a');
-        const pageCount = parseInt(data[0].href.match(/(\d)+$/)[1]);
+        const pageCount = parseInt(data[0].href.match(/([\d]+)$/)[1]);
         for(let page = 1; page <= pageCount; page++) {
             const mangas = await this._getMangasFromPage(page);
             mangaList.push(...mangas);
