@@ -19,115 +19,61 @@ export default class WordPressLightPro extends Connector {
         this.language = '';
     }
 
-    /**
-     *
-     */
-    _getMangaListFromPages( mangaPageLinks, index ) {
-        index = index || 0;
-        return this.fetchDOM( mangaPageLinks[ index ], this.queryMangas, 5 )
-            .then( data => {
-                let mangaList = data.map( element => {
-                    return {
-                        id: this.getRelativeLink( element ),
-                        title: element.title.trim() || element.text.trim()
-                    };
-                } );
-                if( index < mangaPageLinks.length - 1 ) {
-                    return this._getMangaListFromPages( mangaPageLinks, index + 1 )
-                        .then( mangas => mangaList.concat( mangas ) );
-                } else {
-                    return Promise.resolve( mangaList );
-                }
-            } );
+    async _getMangas() {
+        const request = new Request (new URL(this.url + this.path), this.requestOptions);
+        const dom = await this.fetchDOM(request, 'body' );
+        let pageCount = parseInt( dom[0].querySelector(this.queryMangasPageCount).href.match( /(\d+)\/$/ )[1] );
+        let pagesList = [];
+        for (let i = 1; i <= pageCount; i++){
+            pagesList.push(...await this._getMangasFromPage(i));
+        }
+        return pagesList;
     }
 
-    /**
-     *
-     */
-    _getMangaList( callback ) {
-        this.fetchDOM( this.url + this.path, this.queryMangasPageCount )
-            .then( data => {
-                let pageCount = parseInt( data[0].href.match( /(\d+)\/$/ )[1] );
-                let pageLinks = [... new Array( pageCount ).keys()].map( page => this.url + this.path + ( page + 1 ) + '/' );
-                return this._getMangaListFromPages( pageLinks );
-            } )
-            .then( data => {
-                callback( null, data );
-            } )
-            .catch( error => {
-                console.error( error, this );
-                callback( error, undefined );
-            } );
+    async _getMangasFromPage(page) {
+        const request = new Request (new URL(this.url + this.path + page), this.requestOptions);
+        const data = await this.fetchDOM(request, this.queryMangas);
+        return data.map(element => {
+            return {
+                id: this.getRelativeLink(element, this.url),
+                title: element.title.trim() || element.text.trim()
+            };
+        });
     }
 
-    /**
-     *
-     */
-    _getChapterListFromPages( manga, chapterPageLinks, index ) {
-        index = index || 0;
-        return this.fetchDOM( chapterPageLinks[ index ], this.queryChapters, 5 )
-            .then( data => {
-                let chapterList = data.map( element => {
-                    let anchor = element.nodeName.toLowerCase() === 'a' ? element : element.closest( 'a' );
-                    return {
-                        id: this.getRelativeLink( anchor ),
-                        title: element.innerText.replace( manga.title, '' ).trim(),
-                        language: this.language
-                    };
-                } );
-                if( index < chapterPageLinks.length - 1 ) {
-                    return this._getChapterListFromPages( manga, chapterPageLinks, index + 1 )
-                        .then( chapters => chapterList.concat( chapters ) );
-                } else {
-                    return Promise.resolve( chapterList );
-                }
-            } );
+    async _getChapters(manga) {
+        const uri = new URL(manga.id, this.url);
+        const request = new Request(uri, this.requestOptions);
+        let data = await this.fetchDOM(request, this.queryChaptersPageCount);
+        const pageCount = data.length === 0 ? 1 : parseInt( data[0].href.match( /(\d+)\/$/ )[1] );
+        let pagesList = [];
+        for (let i = 1; i <= pageCount; i++){
+            pagesList.push(...await this._getChaptersFromPage(manga, i));
+        }
+        return pagesList;
+    }    
+
+    async _getChaptersFromPage(manga, page){
+        const request = new Request (new URL(this.url + manga.id+ 'chapter-list/' + page), this.requestOptions);
+        const data = await this.fetchDOM(request, this.queryChapters);
+        return data.map(element => {
+            return {
+                  id: this.getRelativeLink( element ),
+                  title: element.innerText.replace( manga.title, '' ).trim(),
+                  language: this.language
+            };
+        });    	
     }
 
-    /**
-     *
-     */
-    _getChapterList( manga, callback ) {
-        this.fetchDOM( this.url + manga.id, this.queryChaptersPageCount )
-            .then( data => {
-                let pageCount = data.length === 0 ? 1 : parseInt( data[0].href.match( /(\d+)\/$/ )[1] );
-                let pageLinks = [... new Array( pageCount ).keys()].map( page => this.url + manga.id + 'chapters-list/' + ( page + 1 ) + '/' );
-                pageLinks[0] = this.url + manga.id;
-                return this._getChapterListFromPages( manga, pageLinks );
-            } )
-            .then( data => {
-                callback( null, data );
-            } )
-            .catch( error => {
-                console.error( error, manga );
-                callback( error, undefined );
-            } );
+    async _getPages(chapter) {
+        const uri = new URL(chapter.id, this.url);
+        const request = new Request(uri, this.requestOptions);
+        const data = await this.fetchDOM(request, this.queryPageLinks );
+        return data.map(element => this.createConnectorURI(this.url + chapter.id + element.value + '/'));
     }
 
-    /**
-     *
-     */
-    _getPageList( manga, chapter, callback ) {
-        this.fetchDOM( this.url + chapter.id, this.queryPageLinks )
-            .then( data => {
-                let pageList = data.map( element => this.createConnectorURI( this.url + chapter.id + element.value + '/' ) );
-                callback( null, pageList );
-            } )
-            .catch( error => {
-                console.error( error, chapter );
-                callback( error, undefined );
-            } );
-    }
-
-    /**
-     *
-     */
-    _handleConnectorURI( payload ) {
+    async _handleConnectorURI( payload ) {
         let request = new Request( payload, this.requestOptions );
-        /*
-         * TODO: only perform requests when from download manager
-         * or when from browser for preview and selected chapter matches
-         */
         return this.fetchDOM( request, this.queryPages )
             .then( data => {
                 let span = document.createElement( 'span' );
