@@ -1,8 +1,6 @@
 import SpeedBinb from './templates/SpeedBinb.mjs';
 import Manga from '../engine/Manga.mjs';
 
-//Copied from Futekiya
-
 export default class MangaPlanet extends SpeedBinb {
 
     constructor() {
@@ -10,9 +8,9 @@ export default class MangaPlanet extends SpeedBinb {
         super.id = 'mangaplanet';
         super.label = 'Manga Planet';
         this.tags = ['manga', 'english'];
-        this.url = 'https://read.mangaplanet.com';
+        this.url = 'https://mangaplanet.com';
         this.requestOptions.headers.set('x-referer', this.url + '/');
-        this.requestOptions.headers.set('x-cookie', 'faconf=' + 18);
+        this.requestOptions.headers.set('x-cookie', 'mpaconf=' + 18);
 
     }
 
@@ -23,22 +21,28 @@ export default class MangaPlanet extends SpeedBinb {
     }
 
     async _getMangas() {
-        let maxPageCount = 1;
-        let mangas = [];
-        let request = new Request(new URL('/browse?page=1', this.url), this.requestOptions);
-        const newpagecount = await this.fetchDOM(request, ".pagination :nth-last-child(2)");
-        maxPageCount = parseInt(newpagecount[0].innerText.trim());
-        for (let i = 1; i <= maxPageCount; i++) {
-            request = new Request(new URL('/browse?page=' + i, this.url), this.requestOptions);
-            const data = await this.fetchDOM(request, '.contents.comics .linkbox');
-            for (let element of data) {
-                mangas.push({
-                    id: this.getRootRelativeOrAbsoluteLink(element.querySelector('a').pathname, this.url),
-                    title: element.querySelector('h3').innerText.trim()
-                });
-            }
+        let mangaList = [];
+        const uri = new URL('/browse', this.url);
+        const request = new Request(uri, this.requestOptions);
+        const data = await this.fetchDOM(request, '.pagination :nth-last-child(2) a');
+        const pageCount = parseInt(data[0].text);
+        for(let page = 1; page <= pageCount; page++) {
+            const mangas = await this._getMangasFromPage(page);
+            mangaList.push(...mangas);
         }
-        return mangas;
+        return mangaList;
+    }
+
+    async _getMangasFromPage(page) {
+        const uri = new URL('/browse/title?ttlpage=' + page, this.url);
+        const request = new Request(uri, this.requestOptions);
+        const data = await this.fetchDOM(request, 'div#Title .row.book-list');
+        return data.map(element => {
+            return {
+                id: this.getRootRelativeOrAbsoluteLink(element.querySelector('a').pathname, this.url),
+                title: element.querySelector('h3').innerText.trim()
+            };
+        });
     }
 
     async _getChapters(manga) {
