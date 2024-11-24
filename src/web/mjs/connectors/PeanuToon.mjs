@@ -1,4 +1,4 @@
-import Connector from '../engine/Connector.mjs';
+﻿import Connector from '../engine/Connector.mjs';
 import Manga from '../engine/Manga.mjs';
 
 export default class PeanuToon extends Connector {
